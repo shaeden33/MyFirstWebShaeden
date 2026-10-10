@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammar Test Practice — Online Answer Sheet</title>
+<style>
+  :root {
+    --primary: #1a365d; --accent: #2e5090; --correct: #276749; --correct-bg: #c6f6d5;
+    --wrong: #c53030; --wrong-bg: #fed7d7; --bg: #f7fafc; --card: #fff; --hl: #fef08a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #2d3748; line-height: 1.5; padding: 16px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; padding: 20px; background: var(--card); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  header h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 4px; }
+  header p { color: #718096; font-size: .9rem; }
+  .info-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding: 14px; background: var(--card); border-radius: 10px; }
+  .info-bar label { font-size: .8rem; color: #4a5568; font-weight: 600; }
+  .info-bar input { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: .9rem; width: 170px; }
+  section { background: var(--card); border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  section h2 { color: var(--accent); font-size: 1.1rem; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 8px; }
+  section .instr { font-size: .82rem; color: #718096; font-style: italic; margin-bottom: 12px; }
+  .q-row { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #edf2f7; }
+  .q-row:last-child { border-bottom: none; }
+  .q-text { font-size: .88rem; color: #2d3748; margin-bottom: 6px; line-height: 1.45; }
+  .q-text .num { font-weight: 700; color: var(--primary); }
+  .q-ans { display: flex; align-items: center; gap: 6px; }
+  .q-ans input[type=text] { flex: 1; padding: 6px 10px; border: 1.5px solid #cbd5e0; border-radius: 6px; font-size: .88rem; }
+  .q-ans input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(46,80,144,.2); }
+  .q-row.correct .q-ans input, .q-row.correct .q-ans select { background: var(--correct-bg); border-color: var(--correct); }
+  .q-row.wrong .q-ans input, .q-row.wrong .q-ans select { background: var(--wrong-bg); border-color: var(--wrong); }
+  .feedback { font-size: .75rem; font-weight: 700; min-width: 18px; }
+  .q-row.correct .feedback { color: var(--correct); }
+  .q-row.wrong .feedback { color: var(--wrong); }
+  .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px 14px; }
+  .item { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; }
+  .item .stem { font-size: .78rem; color: #4a5568; line-height: 1.35; }
+  .item .ans-line { display: flex; align-items: center; gap: 6px; }
+  .item label { font-weight: 700; font-size: .85rem; min-width: 32px; color: var(--primary); }
+  .item input { flex: 1; padding: 5px 8px; border: 1.5px solid #cbd5e0; border-radius: 6px; font-size: .85rem; }
+  .item.correct input { background: var(--correct-bg); border-color: var(--correct); }
+  .item.wrong input { background: var(--wrong-bg); border-color: var(--wrong); }
+  .passage-box {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 14px 16px; margin-bottom: 14px; font-size: .92rem; line-height: 1.7; user-select: text;
+  }
+  .passage-box h3 { color: var(--accent); font-size: 1rem; margin-bottom: 8px; }
+  .passage-box mark.nc { background: var(--hl); border-bottom: 2px solid #eab308; padding: 0 1px; border-radius: 2px; }
+  .hl-toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px;
+    padding: 8px 10px; background: #edf2f7; border-radius: 8px; font-size: .82rem;
+  }
+  .hl-toolbar button { padding: 5px 12px; font-size: .8rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; }
+  .btn-mark { background: #fef08a; color: #854d0e; }
+  .btn-mark:hover { background: #fde047; }
+  .btn-clear-hl { background: #e2e8f0; color: #4a5568; }
+  .hl-hint { color: #718096; font-style: italic; }
+  .f-slot { display: grid; grid-template-columns: 50px 1fr 90px 28px; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .f-slot label { font-weight: 700; font-size: .85rem; color: var(--primary); }
+  .f-slot input { padding: 5px 8px; border: 1.5px solid #cbd5e0; border-radius: 6px; font-size: .85rem; width: 100%; }
+  .f-slot select { padding: 5px 4px; border: 1.5px solid #cbd5e0; border-radius: 6px; font-size: .85rem; font-weight: 600; }
+  .f-slot.correct input, .f-slot.correct select { background: var(--correct-bg); border-color: var(--correct); }
+  .f-slot.wrong input, .f-slot.wrong select { background: var(--wrong-bg); border-color: var(--wrong); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+  button.main { padding: 11px 24px; font-size: .95rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
+  #btnSubmit { background: var(--accent); color: #fff; }
+  #btnSubmit:hover { background: var(--primary); }
+  #btnShow { background: #ed8936; color: #fff; }
+  #btnReset { background: #e2e8f0; color: #4a5568; }
+  #results { display: none; text-align: center; padding: 20px; background: var(--card); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  #results h2 { color: var(--primary); margin-bottom: 6px; }
+  #results .score { font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+  #results .detail { margin-top: 10px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: .9rem; }
+  #results .detail span { font-weight: 600; }
+  .pct-bar { margin: 12px auto 0; max-width: 380px; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+  .pct-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #48bb78); border-radius: 6px; transition: width .5s; }
+  footer { text-align: center; font-size: .75rem; color: #a0aec0; margin-top: 10px; }
+  .legend { font-size: .78rem; color: #4a5568; margin-bottom: 10px; background: #edf2f7; padding: 8px 12px; border-radius: 6px; }
+  .note-box { font-size: .8rem; color: #744210; background: #fefcbf; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Grammar Test Practice — Online Answer Sheet</h1>
+    <p>Vocabulary · Idioms · Prepositions · Sentence Patterns · Reported Speech · Noun Clauses | Auto-graded</p>
+  </header>
+  <div class="info-bar">
+    <div><label>Name</label><br><input type="text" id="studentName" placeholder="Your name"></div>
+    <div><label>Date</label><br><input type="text" id="studentDate"></div>
+    <div><label>Class / Group</label><br><input type="text" id="studentClass" placeholder="Optional"></div>
+  </div>
+
+  <section>
+    <h2>Part A — Vocabulary (1–40)</h2>
+    <p class="instr">Fill in the blanks. The first letter is given.</p>
+    <div class="grid-compact" id="gridA"></div>
+  </section>
+  <section>
+    <h2>Part B — Idioms (41–80)</h2>
+    <p class="instr">Complete the idioms. The first letter is given.</p>
+    <div class="grid-compact" id="gridB"></div>
+  </section>
+  <section>
+    <h2>Part C — Prepositions (81–130)</h2>
+    <p class="instr">Fill in the suitable preposition.</p>
+    <div class="grid-compact" id="gridC"></div>
+  </section>
+  <section>
+    <h2>Part D — Sentence Patterns (131–150)</h2>
+    <p class="instr">Identify the pattern: S-V, S-V-O, S-V-SC, S-V-IO-DO, or S-V-O-OC.</p>
+    <div id="gridD"></div>
+  </section>
+  <section>
+    <h2>Part E — Reported Speech (151–170)</h2>
+    <p class="instr">Rewrite in reported speech. End reported questions with a full stop (.), not a question mark.</p>
+    <div class="note-box">Note: Synonyms such as <em>requested / ordered / instructed</em> (for commands) and <em>questioned / inquired</em> (for questions) are accepted. Time expressions like <em>before / earlier / previously</em> are accepted.</div>
+    <div id="gridE"></div>
+  </section>
+  <section>
+    <h2>Part F — Noun Clauses</h2>
+    <p class="instr">Select text in the passage and click “Highlight selection”, then fill in each clause and its function.</p>
+    <div class="legend"><strong>Functions:</strong> S = subject of the verb · SC = subject complement · OV = object of the verb · OP = object after the preposition · A = object after the adjective · AN = in apposition to the noun · AI = in apposition to empty “it”</div>
+    <div class="hl-toolbar">
+      <button type="button" class="btn-mark" onclick="highlightSelection('p1')">Highlight selection</button>
+      <button type="button" class="btn-clear-hl" onclick="clearHighlights('p1')">Clear highlights</button>
+      <span class="hl-hint">Select text in the passage, then click Highlight.</span>
+    </div>
+    <div class="passage-box" id="p1">
+      <h3>Passage 1: The Marfa Lights</h3>
+      <p>As dusk falls over West Texas, curious travelers gather along a desolate stretch of highway to observe what appears to be mysterious glowing spheres dancing across the horizon. The unsolved mystery is how these strange lights can manifest so consistently without any visible power source. Local residents hold fast to the conviction that the lights are ancient spirit signals from forgotten history. Scientists remain deeply skeptical about whatever explanations the local legends offer.</p>
+      <p>Visitors who travel from afar are thrilled that they can witness the phenomenon firsthand. However, whoever attempts to approach the glowing orbs always finds them fading into the distance. Research teams report that thermal reflections from passing vehicles may cause the optical illusion. Nevertheless, it is fascinating that no single theory has fully resolved the mystery. Furthermore, whatever you choose to believe about the phenomenon will depend on your open-mindedness. Ultimately, the question whether science or magic explains the lights remains open for debate.</p>
+    </div>
+    <div id="slotsP1"></div>
+    <div class="hl-toolbar" style="margin-top:18px;">
+      <button type="button" class="btn-mark" onclick="highlightSelection('p2')">Highlight selection</button>
+      <button type="button" class="btn-clear-hl" onclick="clearHighlights('p2')">Clear highlights</button>
+      <span class="hl-hint">Select text in the passage, then click Highlight.</span>
+    </div>
+    <div class="passage-box" id="p2">
+      <h3>Passage 2: The Lost City under the Sea</h3>
+      <p>Deep off the coast of Japan, marine archaeologists dove into the clear waters to inspect what looks like a massive submerged stone pyramid. The central debate among historians is whether the intricate structures were carved by human hands or formed by natural erosion. Modern explorers share the belief that an ancient civilization sank beneath the waves thousands of years ago. Experts continue to argue over how these perfectly straight stone steps were formed.</p>
+      <p>Diving teams are confident that future underwater surveys will reveal more conclusive evidence. Regardless of the risks, whoever explores the deep underwater ruins must exercise extreme caution. Oceanographers maintain that strong natural currents sculpted the geometric sandstone blocks. It is remarkable that these underwater monuments have survived intact for centuries. The team will document whatever artefacts they discover during the expedition. Finally, the concern that rising ocean tides might damage the remaining structures keeps researchers working urgently.</p>
+    </div>
+    <div id="slotsP2"></div>
+  </section>
+
+  <div class="actions">
+    <button class="main" id="btnSubmit" onclick="grade()">Submit &amp; Check Answers</button>
+    <button class="main" id="btnShow" onclick="showAnswers()">Show Correct Answers</button>
+    <button class="main" id="btnReset" onclick="resetAll()">Reset All</button>
+  </div>
+  <div id="results">
+    <h2>Results</h2>
+    <div class="score" id="scoreText">0 / 190</div>
+    <div class="pct-bar"><div class="pct-fill" id="pctFill" style="width:0%"></div></div>
+    <div class="detail" id="detailText"></div>
+  </div>
+  <footer>All checking happens locally in your browser — nothing is uploaded.</footer>
+</div>
+<script>
+
+const questionsA = [
+"Before going camping for a week, they packed all the basic e________, such as water, bread, toilet paper, and medical supplies.",
+"The massive tech company just built a m________ data center that spans over five football fields.",
+"Major online r________ like Amazon have changed the way people shop for everyday consumer goods.",
+"One major p________ of starting a new business without market research is running out of capital prematurely.",
+"The CEO presented a detailed business plan to explain the underlying r________ behind the sudden merger.",
+"The charity launched a public campaign to raise a________ about mental health issues among teenagers.",
+"She looked deeply p________ when she read the unexpected bad news in the official email.",
+"One single careless error in the final calculation can completely n________ hours of hard scientific work.",
+"After retirement, he decided to d________ most of his free time to community volunteering and gardening.",
+"Relief agencies rushed basic f________ like rice, flour, and canned goods to the flood victims.",
+"With inflation rising, many families are trying to e________ on household bills by cooking at home more often.",
+"He constantly tries to m________ free food off his roommates instead of buying his own groceries.",
+"After winning the lottery, she went on an extravagant shopping s________ and bought designer clothes and jewelry.",
+"She bought a unique handmade dress from a high-end b________ in downtown Milan.",
+"I spent the entire Saturday morning running e________, such as picking up dry cleaning and going to the post office.",
+"Fresh water and adequate sleep are absolute e________ for maintaining good health.",
+"The city is planning a m________ infrastructure project that will cost billions of dollars and take a decade to finish.",
+"Independent bookshops find it difficult to compete against large corporate r________.",
+"Inexperienced investors often fall into the p________ of buying stocks based on social media rumors.",
+"The board requested a clear economic r________ before approving the multimillion-dollar budget increase.",
+"Environmental organizations work tirelessly to increase public a________ regarding plastic pollution in the ocean.",
+"Parents were visibly p________ by the news of upcoming school zoning changes.",
+"The new evidence introduced by the defense helped to n________ the prosecution's main argument.",
+"She is a dedicated researcher who chooses to d________ her life to finding a cure for rare diseases.",
+"The cargo ship was carrying tons of non-perishable f________ destined for overseas supermarkets.",
+"During tough economic times, small businesses must e________ wherever possible to remain profitable.",
+"Instead of getting a summer job, he spent the entire holiday trying to m________ off his friends.",
+"They celebrated their anniversary with a luxury dining and shopping s________ in Paris.",
+"She prefers shopping at small local b________ rather than massive chain department stores.",
+"He couldn't join us for lunch because he had several urgent e________ to run across town.",
+"Sleeping bags and warm coats are absolute e________ when traveling through Arctic regions in winter.",
+"The pop star announced a m________ world tour covering more than sixty cities across five continents.",
+"Electronics r________ usually offer huge discounts on Black Friday to attract holiday shoppers.",
+"Lacking proper backup systems is a critical technical p________ that can lead to total data loss.",
+"What was your r________ for choosing to study engineering instead of computer science?",
+"Raising a________ about cybersecurity is crucial to protecting employees from phishing scams.",
+"The teacher was deeply p________ by the total lack of effort displayed by the senior class.",
+"A single flaw in the core algorithm could n________ all previous simulation results.",
+"The university plans to d________ a full department to the study of artificial intelligence.",
+"Strict agricultural regulations monitor all imported f________ to prevent the spread of crop diseases."
+];
+const questionsB = [
+"After hiking in the mountains all day without a hat, his nose and cheeks were red and sore because he had really c________.",
+"We had been sitting in the car for six hours, so we stopped at the service station to s________ before driving on.",
+"My little cousin is only four, but he can already t________ on a digital clock.",
+"Before the guests arrived, Mum asked me to l________ with the good plates and cutlery.",
+"I waved from across the restaurant, but I still couldn't c________ to ask the waiter for the bill.",
+"The party was fun, but it was getting late, so I whispered to my friend, \"Let's m________.\"",
+"When I explained that the rule was unfair, he argued about one small detail and completely m________.",
+"After recovering from flu, she studied extra hours every evening to m________.",
+"The comedian's joke was so silly that it was almost impossible to k________.",
+"I have a few questions about this grammar rule; could I p________ for ten minutes?",
+"The committee debated for two hours but kept returning to the same two ideas; they were simply g________.",
+"My brother was moving heavy boxes, so I offered to g________ the furniture.",
+"The baby kicked off her hat at the beach, and by noon her shoulders had c________.",
+"After the long flight, we walked around the airport terminal just to s________.",
+"Although the clock was right in front of him, he couldn't t________ without his glasses.",
+"While my sister was l________, I put glasses and napkins beside each plate.",
+"A beautiful painting in the gallery suddenly c________ and I stood there for several minutes.",
+"We had been chatting for an hour, but when I checked my watch, I said, \"It's late; we should m________.\"",
+"He thought I was complaining about the price, but I was really criticising the quality; he m________.",
+"The team trained twice as hard after the holiday to m________ before the final match.",
+"She tried to k________ while her brother wore a ridiculous fake moustache.",
+"My aunt has worked in publishing for years, so I'm going to p________ about how to get an internship.",
+"The discussion about where to go for dinner was g________ because nobody would compromise.",
+"I couldn't lift the sofa by myself, so my neighbour g________ it.",
+"His arms were pale, but after a week in Portugal they had c________.",
+"After sitting through a three-hour lecture, I stood up and s________ during the break.",
+"The old clock has no numbers, so young children may find it hard to t________.",
+"We always l________ together as a family before Sunday lunch.",
+"I was trying to c________ across the crowded room, but the waiter was looking at the stage.",
+"The meeting had already gone on for an hour too long, so the manager finally m________.",
+"You're focusing on my tone of voice and ignoring my actual argument; you're m________.",
+"After wasting the first month of the project, we had to work weekends to m________.",
+"It was hard to k________ when the teacher tripped over the bin but pretended nothing had happened.",
+"Before I buy a used car, I'd like to p________ of a mechanic.",
+"The two sides kept repeating their positions without reaching an agreement; the negotiations were g________.",
+"Could you g________ carrying these chairs upstairs? They're too heavy for me.",
+"We spent too long in the sun on the first day, and by evening my neck had c________.",
+"The train was delayed for two hours, so passengers got off to s________ on the platform.",
+"My grandfather learned to t________ on a clock when he was only five.",
+"The children helped their father l________ before the birthday party."
+];
+const questionsC = [
+"I was terrified I had failed the driving test, but I passed _____ all!",
+"The board discussed several urgent issues, including, _____ other things, the annual budget deficit.",
+"The heavy snowstorm blocked all major roads and, _____ a result, many commuters were stranded overnight.",
+"He didn't just apologize; _____ a matter of fact, he offered to pay for all the damages.",
+"The traffic is terrible, but _____ any rate, we should make it before the main show starts.",
+"Don't worry about finding a tool; I have an emergency kit right _____ hand.",
+"To speak so rudely to your grandmother is completely _____ contempt.",
+"_____ and large, the new company policy has improved overall staff morale.",
+"Meeting my primary school teacher at an airport in Tokyo was purely _____ coincidence.",
+"It is _____ no means guaranteed that the project will receive government funding.",
+"_____ rights, the house belongs to her since she paid off the entire mortgage herself.",
+"That movie was fantastic! _____ the way, have you seen the director's latest film?",
+"The hotel fee includes breakfast; _____ addition, guests get free access to the spa.",
+"The weather forecast predicts rain, but _____ any case, we are going hiking.",
+"_____ conclusion, I would like to thank everyone who contributed to this project's success.",
+"Everyone thought the exam would be impossible, but _____ fact, it was quite straightforward.",
+"The project was falling behind, but our team leader now has everything firmly _____ hand.",
+"Theoretically, the plan works well, but _____ practice, it faces many technical hurdles.",
+"We don't have enough time for details, so _____ short, the proposal was rejected.",
+"We prepared for a massive crowd, but _____ the event, only twenty people showed up.",
+"The main technician will arrive in an hour; _____ the meantime, please review the manual.",
+"He didn't prepare a written speech, so he gave his entire address _____ the cuff.",
+"You can test drive this computer _____ approval for ten days before making a final payment.",
+"We have trained first-aid personnel _____ hand 24/7 at the facility.",
+"He isn't selfish; _____ the contrary, he gives a huge portion of his income to charity.",
+"Moving abroad sounds exciting; _____ the other hand, leaving family behind will be tough.",
+"_____ the whole, the conference was a success despite a few technical glitches.",
+"The argument between the drivers quickly got _____ of hand before the police arrived.",
+"I haven't played chess for years, so I am completely _____ of practice.",
+"Seeing a flock of bright pink flamingos in a city park is definitely _____ of the ordinary.",
+"Do you have a pen _____ hand so I can write down this phone number?",
+"The security guard stopped the teenager because he was clearly _____ age for the venue.",
+"During the prohibition era, alcohol was often sold illegally _____ the counter.",
+"She decided to call in sick today because she was feeling a bit _____ the weather.",
+"St. Andrews is _____ a doubt one of the most historical sites in the region.",
+"If you notice a safety hazard, please report it to management _____ delay.",
+"Every single participant, _____ exception, must present a photo ID to enter.",
+"_____ addition to her full-time job, she volunteers at the animal shelter every weekend.",
+"He tried to hide his mistake, but _____ a result of the audit, the discrepancy was discovered.",
+"_____ the whole, I think the team performed remarkably well under pressure.",
+"That insulting remark was completely _____ contempt and doesn't deserve a response.",
+"_____ rights, you should be the one leading this department after all your years of dedication.",
+"_____ any rate, we need to finalize the contract before the end of the week.",
+"The situation seemed hopeless, but _____ the event, everything turned out fine.",
+"_____ the meantime, let's work on the remaining tasks while we wait for the confirmation.",
+"She delivered an incredible presentation completely _____ the cuff with zero preparation.",
+"You can take the equipment home _____ approval to see if it meets your needs.",
+"They met completely _____ coincidence at a coffee shop in Paris.",
+"_____ conclusion, I strongly urge the board to approve this funding request.",
+"He is _____ no means an expert, but he knows enough to help us out."
+];
+const questionsD = [
+"The heavy rain stopped abruptly at midnight.",
+"The board elected Maria President of the committee.",
+"My older brother bought me a delicious coffee this morning.",
+"The homemade soup smelled delicious.",
+"The librarian recommended a fascinating novel to the students.",
+"The old grandfather clock ticks steadily in the hallway.",
+"She painted the kitchen walls bright yellow.",
+"The manager offered the applicant a higher starting salary.",
+"After a long day of hiking, the tired travelers felt exhausted.",
+"Thousands of excited fans cheered loudly during the final minute of the match.",
+"The judge declared the defendant innocent of all charges.",
+"Our neighbor baked us a fresh batch of chocolate chip cookies.",
+"The company introduced a new software update last week.",
+"The milk in the fridge turned sour after the power outage.",
+"Critics considered the new film a complete masterpiece.",
+"She passed her classmate a secret note during the lecture.",
+"The bright sunlight made the room warm and cozy.",
+"Despite the noisy surroundings, the baby slept peacefully.",
+"The fresh pastry tasted surprisingly sweet.",
+"The principal awarded the top student a gold medal at the assembly."
+];
+const questionsE = [
+'The Defense Minister said, "The trial will take place here next week."',
+'The basketball coach said, "Jason, you did an excellent job in the tournament yesterday."',
+'"My company publishes only reliable news and I will remain committed to this standard," the editor says.',
+'Professor Vance said, "I shall complete grading these papers tonight."',
+'Maria said, "David, please drive more carefully or I will report you."',
+'Mr. Evans asked, "Clara, why did you become so doubtful of your manager\'s decision?"',
+'The flight attendant asked the passenger, "Would you like another blanket here?"',
+'The runner asked her trainer, "When is the next marathon held? Shall I participate?"',
+'The tour guide said, "The museum will open here tomorrow morning."',
+'The manager told the team, "You handled the crisis very well during the launch last week."',
+'"My charity receives donations from all over the world and I will expand our operations," the founder says.',
+'Mr. Harrison said, "I shall review the annual financial statement tonight."',
+'Dr. Lee said, "Tom, please take this medicine regularly or your condition will worsen."',
+'Detective Miller asked, "Sarah, how did you become so suspicious of your business partner?"',
+'The receptionist asked the client, "Would you like a glass of water here?"',
+'The pianist asked his teacher, "Where is the main concert taking place? Shall I perform first?"',
+'The project lead said, "The new branch will launch here next month."',
+'The supervisor said, "Alex, you submitted a brilliant report two days ago."',
+'"My research team focuses on climate change solutions and I will share our findings," the professor says.',
+'The police officer said, "Sam, please step away from the building immediately or I will arrest you."'
+];
+
+const answers = {
+  1:["essentials"],2:["mega"],3:["retailers"],4:["pitfall"],5:["rationale"],6:["awareness"],7:["perturbed"],8:["negate"],9:["devote"],10:["foodstuffs","foodstuff"],
+  11:["economise","economize"],12:["mooch"],13:["spree"],14:["boutique"],15:["errands"],16:["essentials"],17:["mega"],18:["retailers"],19:["pitfalls"],20:["rationale"],
+  21:["awareness"],22:["perturbed"],23:["negate"],24:["devote"],25:["foodstuffs","foodstuff"],26:["economise","economize"],27:["mooch"],28:["spree"],29:["boutiques"],30:["errands"],
+  31:["essentials"],32:["mega"],33:["retailers"],34:["pitfall"],35:["rationale"],36:["awareness"],37:["perturbed"],38:["negate"],39:["devote"],40:["foodstuffs","foodstuff"],
+  41:["caught the sun","catch the sun"],42:["stretch our legs","stretch your legs","stretch my legs"],43:["tell the time"],44:["lay the table"],
+  45:["catch the waiter's eye","catch the waiters eye","catch his eye"],46:["make a move"],47:["missed the point","miss the point"],48:["make up for lost time"],
+  49:["keep a straight face"],50:["pick your brain","pick your brains"],51:["going round in circles","going around in circles"],52:["give him a hand with","give him a hand"],
+  53:["caught the sun"],54:["stretch our legs","stretch your legs"],55:["tell the time"],56:["laying the table","lay the table"],57:["caught my eye","catch my eye"],
+  58:["make a move"],59:["missed the point"],60:["make up for lost time"],61:["keep a straight face"],62:["pick her brain","pick her brains"],
+  63:["going round in circles","going around in circles"],64:["gave me a hand with","gave me a hand"],65:["caught the sun"],66:["stretched my legs","stretch my legs"],
+  67:["tell the time"],68:["lay the table"],69:["catch the waiter's eye","catch the waiters eye"],70:["made a move","make a move"],71:["missing the point","miss the point"],
+  72:["make up for lost time"],73:["keep a straight face"],74:["pick the brains","pick the brain"],75:["going round in circles","going around in circles"],
+  76:["give me a hand with","give me a hand"],77:["caught the sun"],78:["stretch their legs","stretch our legs"],79:["tell the time"],80:["lay the table"],
+  81:["after"],82:["among"],83:["as"],84:["as"],85:["at"],86:["at"],87:["beneath"],88:["by"],89:["by"],90:["by"],
+  91:["by"],92:["by"],93:["in"],94:["in"],95:["in"],96:["in"],97:["in"],98:["in"],99:["in"],100:["in"],
+  101:["in"],102:["off"],103:["on"],104:["on"],105:["on"],106:["on"],107:["on"],108:["out"],109:["out"],110:["out"],
+  111:["to"],112:["under"],113:["under"],114:["under"],115:["without"],116:["without"],117:["without"],118:["in"],119:["as"],120:["on"],
+  121:["beneath"],122:["by"],123:["at"],124:["in"],125:["in"],126:["off"],127:["on"],128:["by"],129:["in"],130:["by"],
+  131:["s-v","sv"],132:["s-v-o-oc","svoc","s-v-o-c"],133:["s-v-io-do","svoo"],134:["s-v-sc","svc"],135:["s-v-o","svo"],
+  136:["s-v","sv"],137:["s-v-o-oc","svoc"],138:["s-v-io-do","svoo"],139:["s-v-sc","svc"],140:["s-v","sv"],
+  141:["s-v-o-oc","svoc"],142:["s-v-io-do","svoo"],143:["s-v-o","svo"],144:["s-v-sc","svc"],145:["s-v-o-oc","svoc"],
+  146:["s-v-io-do","svoo"],147:["s-v-o-oc","svoc"],148:["s-v","sv"],149:["s-v-sc","svc"],150:["s-v-io-do","svoo"]
+};
+
+/* Part E: groups of required key concepts. Each group is OR of alternatives; all groups must hit. */
+const reportedRules = {
+  151: { must:[["would take place there"],["following week","next week"]], noQuestionMark:true },
+  152: { must:[["told jason","said to jason"],["had done"],["day before","previous day","the day earlier"]], noQuestionMark:false },
+  153: { must:[["publishes"],["will remain"],["that standard"]], noQuestionMark:false },
+  154: { must:[["should","would"],["that night"],["those papers"]], noQuestionMark:false },
+  155: { must:[["told david to","asked david to","requested david to","ordered david to","instructed david to"],["would report him"]], noQuestionMark:false },
+  156: { must:[["asked clara","questioned clara","inquired of clara","enquired of clara"],["why she had become"]], noQuestionMark:true },
+  157: { must:[["whether","if"],["would like"],["there"]], noQuestionMark:true },
+  158: { must:[["when the next marathon was"],["whether she should","if she should"]], noQuestionMark:true },
+  159: { must:[["would open there"],["next morning","following morning"]], noQuestionMark:false },
+  160: { must:[["had handled"],["previous week","week before","week earlier"]], noQuestionMark:false },
+  161: { must:[["receives"],["will expand"]], noQuestionMark:false },
+  162: { must:[["should","would"],["that night"]], noQuestionMark:false },
+  163: { must:[["told tom to","asked tom to","requested tom to","ordered tom to","instructed tom to"],["that medicine"],["would worsen"]], noQuestionMark:false },
+  164: { must:[["asked sarah","questioned sarah","inquired of sarah"],["how she had become"]], noQuestionMark:true },
+  165: { must:[["whether","if"],["would like"],["there"]], noQuestionMark:true },
+  166: { must:[["was taking place"],["whether he should","if he should"]], noQuestionMark:true },
+  167: { must:[["would launch there"],["following month","next month"]], noQuestionMark:false },
+  168: { must:[["told alex","said to alex"],["had submitted"],["two days before","two days earlier","two days previously"]], noQuestionMark:false },
+  169: { must:[["focuses"],["will share"]], noQuestionMark:false },
+  170: { must:[["told sam to","ordered sam to","commanded sam to","instructed sam to"],["would arrest him"]], noQuestionMark:false }
+};
+
+const reportedShow = {
+  151:"The Defense Minister said that the trial would take place there the following week.",
+  152:"The basketball coach told Jason that he had done an excellent job in the tournament the day before.",
+  153:"The editor says that his/her company publishes only reliable news and he/she will remain committed to that standard.",
+  154:"Professor Vance said that he should/would complete grading those papers that night.",
+  155:"Maria told/asked/requested David to drive more carefully or she would report him.",
+  156:"Mr. Evans asked Clara why she had become so doubtful of her manager's decision.",
+  157:"The flight attendant asked the passenger whether/if he/she would like another blanket there.",
+  158:"The runner asked her trainer when the next marathon was held and whether she should participate.",
+  159:"The tour guide said that the museum would open there the next/following morning.",
+  160:"The manager told the team that they had handled the crisis very well during the launch the previous week/the week before.",
+  161:"The founder says that his/her charity receives donations from all over the world and he/she will expand their operations.",
+  162:"Mr. Harrison said that he should/would review the annual financial statement that night.",
+  163:"Dr. Lee told/asked/requested Tom to take that medicine regularly or his condition would worsen.",
+  164:"Detective Miller asked Sarah how she had become so suspicious of her business partner.",
+  165:"The receptionist asked the client whether/if he/she would like a glass of water there.",
+  166:"The pianist asked his teacher where the main concert was taking place and whether he should perform first.",
+  167:"The project lead said that the new branch would launch there the following/next month.",
+  168:"The supervisor told Alex that he/she had submitted a brilliant report two days before/earlier.",
+  169:"The professor says that his/her research team focuses on climate change solutions and he/she will share their findings.",
+  170:"The police officer told/ordered Sam to step away from the building immediately or he would arrest him."
+};
+
+const f1Clauses = [
+  {clause:"what appears to be mysterious glowing spheres",func:"OV"},
+  {clause:"how these strange lights can manifest so consistently without any visible power source",func:"SC"},
+  {clause:"that the lights are ancient spirit signals from forgotten history",func:"AN"},
+  {clause:"whatever explanations the local legends offer",func:"OP"},
+  {clause:"that they can witness the phenomenon firsthand",func:"A"},
+  {clause:"whoever attempts to approach the glowing orbs",func:"S"},
+  {clause:"that thermal reflections from passing vehicles may cause the optical illusion",func:"OV"},
+  {clause:"that no single theory has fully resolved the mystery",func:"AI"},
+  {clause:"whatever you choose to believe about the phenomenon",func:"S"},
+  {clause:"whether science or magic explains the lights",func:"AN"}
+];
+const f2Clauses = [
+  {clause:"what looks like a massive submerged stone pyramid",func:"OV"},
+  {clause:"whether the intricate structures were carved by human hands or formed by natural erosion",func:"SC"},
+  {clause:"that an ancient civilization sank beneath the waves thousands of years ago",func:"AN"},
+  {clause:"how these perfectly straight stone steps were formed",func:"OP"},
+  {clause:"that future underwater surveys will reveal more conclusive evidence",func:"A"},
+  {clause:"whoever explores the deep underwater ruins",func:"S"},
+  {clause:"that strong natural currents sculpted the geometric sandstone blocks",func:"OV"},
+  {clause:"that these underwater monuments have survived intact for centuries",func:"AI"},
+  {clause:"whatever artefacts they discover during the expedition",func:"OV"},
+  {clause:"that rising ocean tides might damage the remaining structures",func:"AN"}
+];
+const FUNCS = ["S","SC","OV","OP","A","AN","AI"];
+
+function norm(s){return (s||"").toLowerCase().trim().replace(/[’‘']/g,"'").replace(/\s+/g," ").replace(/[()]/g,"");}
+
+function buildCompact(id, start, questions){
+  const g=document.getElementById(id);
+  questions.forEach((q,idx)=>{
+    const n=start+idx;
+    const d=document.createElement("div");
+    d.className="item"; d.id="item"+n;
+    d.innerHTML=`<div class="stem"><span class="num">${n}.</span> ${q}</div>
+      <div class="ans-line"><input type="text" id="q${n}" autocomplete="off" spellcheck="false" placeholder="Answer..."><span class="feedback" id="fb${n}"></span></div>`;
+    g.appendChild(d);
+  });
+}
+buildCompact("gridA",1,questionsA);
+buildCompact("gridB",41,questionsB);
+buildCompact("gridC",81,questionsC);
+
+function buildFull(id, start, questions){
+  const g=document.getElementById(id);
+  questions.forEach((q,idx)=>{
+    const n=start+idx;
+    const d=document.createElement("div");
+    d.className="q-row"; d.id="item"+n;
+    d.innerHTML=`<div class="q-text"><span class="num">${n}.</span> ${q}</div>
+      <div class="q-ans"><input type="text" id="q${n}" autocomplete="off" spellcheck="false" placeholder="Your answer..."><span class="feedback" id="fb${n}"></span></div>`;
+    g.appendChild(d);
+  });
+}
+buildFull("gridD",131,questionsD);
+buildFull("gridE",151,questionsE);
+
+function buildFSlots(cid,prefix,count){
+  const c=document.getElementById(cid);
+  for(let i=1;i<=count;i++){
+    const d=document.createElement("div");
+    d.className="f-slot"; d.id="fitem"+prefix+i;
+    const opts=FUNCS.map(f=>`<option value="${f}">${f}</option>`).join("");
+    d.innerHTML=`<label>${prefix}.${i}</label><input type="text" id="fc${prefix}${i}" placeholder="Noun clause..." autocomplete="off"><select id="ff${prefix}${i}"><option value="">—</option>${opts}</select><span class="feedback" id="ffb${prefix}${i}"></span>`;
+    c.appendChild(d);
+  }
+}
+buildFSlots("slotsP1","171",10);
+buildFSlots("slotsP2","172",10);
+
+function highlightSelection(boxId){
+  const sel=window.getSelection();
+  if(!sel||sel.isCollapsed){alert("Select some text in the passage first.");return;}
+  const box=document.getElementById(boxId);
+  if(!box.contains(sel.anchorNode)){alert("Please select text inside the passage.");return;}
+  try{const range=sel.getRangeAt(0);const mark=document.createElement("mark");mark.className="nc";range.surroundContents(mark);sel.removeAllRanges();}
+  catch(e){alert("Could not highlight. Try a cleaner selection.");}
+}
+function clearHighlights(boxId){
+  const box=document.getElementById(boxId);
+  box.querySelectorAll("mark.nc").forEach(m=>{const p=m.parentNode;while(m.firstChild)p.insertBefore(m.firstChild,m);p.removeChild(m);});
+}
+
+function matchAnswer(user,keys){
+  const u=norm(user);if(!u)return false;
+  return keys.some(k=>{const nk=norm(k);return u===nk||u.includes(nk)||nk.includes(u);});
+}
+function matchReported(user,n){
+  const raw=(user||"").trim();
+  if(!raw)return false;
+  const rule=reportedRules[n];
+  // 1) Reject trailing ?
+  if(rule.noQuestionMark && /\?\s*$/.test(raw)) return false;
+  // Also reject ? for any reported item if it ends with ? after content that looks like a reported question
+  if(/\?\s*$/.test(raw) && rule.noQuestionMark!==false && (n===156||n===157||n===158||n===164||n===165||n===166||rule.noQuestionMark)) return false;
+  const u=norm(raw);
+  // 2) All must-groups must have at least one alternative present
+  return rule.must.every(group => group.some(alt => u.includes(norm(alt))));
+}
+function matchClause(user,correct){
+  const u=norm(user),c=norm(correct);if(!u)return false;
+  if(u===c||u.includes(c)||c.includes(u))return true;
+  const ut=u.split(" ").filter(t=>t.length>2),ct=c.split(" ").filter(t=>t.length>2);
+  if(!ct.length)return false;
+  return ct.filter(t=>ut.includes(t)).length/ct.length>=0.6;
+}
+
+function grade(){
+  let correct=0,a=0,b=0,c=0,d=0,e=0,f=0;
+  for(let i=1;i<=150;i++){
+    const input=document.getElementById("q"+i),item=document.getElementById("item"+i),fb=document.getElementById("fb"+i);
+    item.classList.remove("correct","wrong");fb.textContent="";
+    if(!input.value.trim())continue;
+    if(matchAnswer(input.value,answers[i])){item.classList.add("correct");fb.textContent="✓";correct++;if(i<=40)a++;else if(i<=80)b++;else if(i<=130)c++;else d++;}
+    else{item.classList.add("wrong");fb.textContent="✗";}
+  }
+  for(let i=151;i<=170;i++){
+    const input=document.getElementById("q"+i),item=document.getElementById("item"+i),fb=document.getElementById("fb"+i);
+    item.classList.remove("correct","wrong");fb.textContent="";
+    if(!input.value.trim())continue;
+    const raw=input.value.trim();
+    if(/\?\s*$/.test(raw) && reportedRules[i].noQuestionMark){
+      item.classList.add("wrong");fb.textContent="?✗";continue;
+    }
+    if(matchReported(input.value,i)){item.classList.add("correct");fb.textContent="✓";correct++;e++;}
+    else{item.classList.add("wrong");fb.textContent="✗";}
+  }
+  function gradeF(prefix,keys){
+    let ok=0;
+    for(let i=1;i<=10;i++){
+      const slot=document.getElementById("fitem"+prefix+i),ci=document.getElementById("fc"+prefix+i),fi=document.getElementById("ff"+prefix+i),fb=document.getElementById("ffb"+prefix+i);
+      slot.classList.remove("correct","wrong");fb.textContent="";
+      if(!ci.value.trim()&&!fi.value)continue;
+      const clauseOk=matchClause(ci.value,keys[i-1].clause),funcOk=fi.value===keys[i-1].func;
+      if(clauseOk&&funcOk){slot.classList.add("correct");fb.textContent="✓";correct++;ok++;}
+      else{slot.classList.add("wrong");fb.textContent=clauseOk?"func?":(funcOk?"clause?":"✗");}
+    }
+    return ok;
+  }
+  f+=gradeF("171",f1Clauses);f+=gradeF("172",f2Clauses);
+  const total=190;
+  document.getElementById("results").style.display="block";
+  document.getElementById("scoreText").textContent=correct+" / "+total;
+  const pct=Math.round(correct/total*100);
+  document.getElementById("pctFill").style.width=pct+"%";
+  document.getElementById("detailText").innerHTML=
+    `<span style="color:#276749">A:${a}/40</span><span style="color:#2b6cb0">B:${b}/40</span><span style="color:#c05621">C:${c}/50</span><span style="color:#805ad5">D:${d}/20</span><span style="color:#dd6b20">E:${e}/20</span><span style="color:#319795">F:${f}/20</span><span>(${pct}%)</span>`;
+  document.getElementById("results").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function showAnswers(){
+  for(let i=1;i<=150;i++){const input=document.getElementById("q"+i),item=document.getElementById("item"+i),fb=document.getElementById("fb"+i);input.value=answers[i][0];item.classList.remove("wrong");item.classList.add("correct");fb.textContent="✓";}
+  for(let i=151;i<=170;i++){const input=document.getElementById("q"+i),item=document.getElementById("item"+i),fb=document.getElementById("fb"+i);input.value=reportedShow[i];item.classList.remove("wrong");item.classList.add("correct");fb.textContent="✓";}
+  function fillF(prefix,keys){for(let i=1;i<=10;i++){document.getElementById("fc"+prefix+i).value=keys[i-1].clause;document.getElementById("ff"+prefix+i).value=keys[i-1].func;const slot=document.getElementById("fitem"+prefix+i);slot.classList.remove("wrong");slot.classList.add("correct");document.getElementById("ffb"+prefix+i).textContent="✓";}}
+  fillF("171",f1Clauses);fillF("172",f2Clauses);
+  autoHighlight("p1",f1Clauses.map(x=>x.clause));
+  autoHighlight("p2",f2Clauses.map(x=>x.clause));
+}
+function autoHighlight(boxId,clauses){
+  clearHighlights(boxId);
+  const box=document.getElementById(boxId);
+  let html=box.innerHTML;
+  [...clauses].sort((a,b)=>b.length-a.length).forEach(cl=>{
+    const safe=cl.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    html=html.replace(new RegExp("("+safe+")","i"),'<mark class="nc">$1</mark>');
+  });
+  box.innerHTML=html;
+}
+function resetAll(){location.reload();}
+(function(){const d=new Date();document.getElementById("studentDate").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");})();
+</script>
+</body>
+</html>
